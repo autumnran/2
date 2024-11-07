@@ -1,0 +1,1459 @@
+7-1 还原二叉树
+#include<bits/stdc++.h>
+using namespace std;
+string pre,in;
+
+int gethight(int prel,int prer,int inL,int inR){
+    if(prel>prer||inL>inR)return 0;
+
+    int root=pre[prel];
+
+    int i;
+    for(i=inL;i<inR;i++){
+        if(root==in[i])break;
+    }
+
+    int leftsize=i-inL;
+
+    int left=gethight(prel+1,prel+leftsize,inL,i-1);
+    int right=gethight(leftsize+prel+1,prer,i+1,inR);
+
+    return max(left,right)+1;
+}
+
+
+
+
+int main(){
+
+    int n;
+    cin>>n;
+
+
+    cin>>pre>>in;
+
+    cout<<gethight(0,n-1,0,n-1);
+
+
+    return 0;
+}
+
+7-2 朋友圈
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<int>parent,group;
+
+int max(int a,int b){
+    return a>b?a:b;
+}
+
+int find(int a){
+
+    return parent[a]==a?a:parent[a]=find(parent[a]);
+}
+
+void merge(int first,int second){
+
+    int root_first=find(first);
+    int root_second=find(second);
+
+
+    if(root_first!=root_second){
+
+        parent[root_first]=root_second;
+
+        group[root_second]+=group[root_first];
+    }
+
+}
+
+
+int main(){
+
+    int n,m;
+    cin>>n>>m;
+
+    parent.resize(n+1);
+    group.resize(n+1,1);
+
+    for(int i=1;i<=n;i++){
+
+        parent[i]=i;
+    }
+
+
+    for(int i=0;i<m;i++){
+
+        int num;
+        cin>>num;
+        if(num==0)continue;
+        int first;
+        cin>>first;
+
+        for(int j=1;j<num;j++){
+            int next;
+            cin>>next;
+            merge(first,next);
+        }
+
+    }
+
+
+
+    int ss=0;
+
+
+    for(int i=1;i<=n;i++){
+
+
+        ss=max(ss,group[i]);
+    }
+
+    cout<<ss<<endl;
+
+    return 0;
+}
+
+7-3 修理牧场
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+
+    int n;
+    cin>>n;
+
+    priority_queue<int,vector<int>,greater<int>>min_qu;
+
+    for(int i=0;i<n;i++){
+        int len;
+        cin>>len;
+        min_qu.push(len);
+    }
+
+    int ans=0;
+
+    while(min_qu.size()!=1){
+
+        int first=min_qu.top();
+
+        min_qu.pop();
+        int second=min_qu.top();
+        min_qu.pop();
+
+        int ss=first+second;
+
+
+        ans+=ss;
+        min_qu.push(ss);
+
+    }
+
+    cout<<ans;
+    return 0;
+}
+7-4 根据后序和中序遍历输出前序遍历
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<int>pre,post,in;
+
+
+void buildpre(int postl,int postr,int inl,int inr){
+
+    if(postl>postr||inl>inr)return;
+    int i;
+    for(i=inl;i<=inr;i++){
+        if(in[i]==post[postr]){
+            break;
+        }
+    }
+
+    pre.push_back(post[postr]);
+
+    int leftsize=i-inl;
+
+    buildpre(postl,postl+leftsize-1,inl,i-1);
+    buildpre(postl+leftsize,postr-1,i+1,inr);
+}
+
+
+int main(){
+
+    int n;
+
+    cin>>n;
+
+    post.resize(n);
+    in.resize(n);
+
+    for(int i=0;i<n;i++){
+        cin>>post[i];
+    }
+    for(int i=0;i<n;i++){
+        cin>>in[i];
+    }
+
+    buildpre(0,n-1,0,n-1);
+
+    cout<<"Preorder:";
+
+    bool flag=false;
+    for(int i=0;i<n;i++){
+        if(!flag)cout<<" ";
+
+        cout<<pre[i];
+        flag=false;
+    }
+
+    cout<<endl;
+    return 0;
+}
+
+7-5 玩转二叉树
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<int>pre,in,post;
+
+struct Node{
+
+    int data;
+
+    Node*left;
+    Node*right;
+
+    Node(int val){
+
+        data=val;
+        left=nullptr;
+        right=nullptr;
+    }
+
+};
+
+
+Node*buildtree(int prel,int prer,int inl,int inr){
+
+    if(prel>prer||inl>inr)return nullptr;
+    int i;
+    for(i=inl;i<=inr;i++){
+
+        if(in[i]==pre[prel])break;
+
+    }
+
+    Node*root=new Node(pre[prel]);
+
+    int leftsize=i-inl;
+
+    root->left=buildtree(prel+1,prel+leftsize,inl,i-1);
+    root->right=buildtree(prel+leftsize+1,prer,i+1,inr);
+    return root;
+}
+
+vector<int>levelorder(Node*root){
+
+    vector<int>result;
+    if(root==nullptr)return result;
+
+    queue<Node*>q;
+
+    q.push(root);
+    while(!q.empty()){
+
+        Node*node=q.front();
+        q.pop();
+        result.push_back(node->data);
+        if(node->left)q.push(node->left);
+        if(node->right)q.push(node->right);
+
+    }
+    return result;
+}
+
+void mirror(Node*root){
+
+
+    if(root==nullptr)return;
+    swap(root->left,root->right);
+
+    mirror(root->left);
+    mirror(root->right);
+}
+int main(){
+
+    int n;
+    cin>>n;
+
+    in.resize(n);
+    pre.resize(n);
+
+    for(int i=0;i<n;i++){
+
+        cin>>in[i];
+    }
+    for(int i=0;i<n;i++){
+        cin>>pre[i];
+
+    }
+
+    Node*root=buildtree(0,n-1,0,n-1);
+
+    mirror(root);
+
+    vector<int>result=levelorder(root);
+
+    bool flag=true;
+    for(auto&u:result){
+        if(!flag)cout<<" ";
+
+        cout<<u;
+        flag=false;
+    }
+
+
+    return 0;
+}
+7-6 部落
+#include <bits/stdc++.h>
+using namespace std;
+
+vector<int> parent;   // 记录每个成员的父节点
+vector<int> groupSize; // 记录每个部落的大小
+
+// 查找函数，使用路径压缩
+int find(int member) {
+    if (member != parent[member]) {
+        parent[member] = find(parent[member]); // 路径压缩
+    }
+    return parent[member];
+}
+
+// 合并函数
+void merge(int first_member, int next_member) {
+    int rootFirst = find(first_member);
+    int rootNext = find(next_member);
+    
+    if (rootFirst != rootNext) {
+        // 合并
+        parent[rootNext] = rootFirst; // 将一个根节点指向另一个根节点
+        groupSize[rootFirst] += groupSize[rootNext]; // 更新合并后部落的大小
+    }
+}
+
+int main() {
+    int n;
+    cin >> n;
+
+    // 初始化并查集
+    parent.resize(10001); // 假设最大成员编号为10000
+    groupSize.resize(10001, 1); // 每个部落初始大小为1
+
+    // 初始化每个成员的父节点
+    for (int i = 1; i <= 10000; ++i) {
+        parent[i] = i;
+    }
+
+    // 读取小圈子信息并合并
+    for (int i = 0; i < n; i++) {
+        int tinyGroup_number;
+        int first_member;
+
+        cin >> tinyGroup_number >> first_member;
+
+        for (int j = 1; j < tinyGroup_number; j++) {
+            int next_member;
+            cin >> next_member;
+            merge(first_member, next_member);
+        }
+    }
+
+    // 统计不同的部落数量和社区总人数
+    unordered_set<int> uniqueRoots; // 用于存储不同部落的根节点
+    int totalPeople = 0;
+
+    for (int i = 1; i <= 10000; ++i) {
+        if (parent[i] == i) {
+            uniqueRoots.insert(i); // 记录根节点
+        }
+        if (find(i) == i) { // 统计所有不同部落的成员
+            totalPeople += groupSize[i];
+        }
+    }
+
+    cout << totalPeople << " " << uniqueRoots.size() << endl; // 输出总人数和部落数量
+
+    int q;
+    cin >> q; // 查询次数
+    for (int i = 0; i < q; i++) {
+        int x, y;
+        cin >> x >> y; // 读取查询的两个人
+        if (find(x) == find(y)) {
+            cout << "Y" << endl; // 在同一个部落
+        } else {
+            cout << "N" << endl; // 不在同一个部落
+        }
+    }
+
+    return 0;
+}
+
+7-7 列出叶结点
+#include <bits/stdc++.h>
+using namespace std;
+
+struct Node {
+    int l, r; // 左右子节点的编号，-1 表示不存在
+};
+
+int main() {
+    int n;
+    cin >> n;
+    
+    vector<Node> node(n);
+    int a[10] = {0}; // 初始化标记数组
+    
+    for (int i = 0; i < n; i++) {
+        char l, r;
+        cin >> l >> r;
+
+        // 处理左子节点
+        if (l == '-') {
+            node[i].l = -1;
+        } else {
+            node[i].l = l - '0'; // 将字符转为整数索引
+            a[node[i].l] = 1; // 标记该节点为子节点
+        }
+
+        // 处理右子节点
+        if (r == '-') {
+            node[i].r = -1;
+        } else {
+            node[i].r = r - '0'; // 将字符转为整数索引
+            a[node[i].r] = 1; // 标记该节点为子节点
+        }
+    }
+
+    // 查找根节点
+    int root = 0;
+    for (int i = 0; i < n; i++) {
+        if (a[i] != 1) { // 没有被标记为子节点的节点即为根节点
+            root = i;
+            break;
+        }
+    }
+
+    // 使用队列进行层序遍历
+    queue<int> q;
+    bool flag = true;
+    q.push(root);
+
+    while (!q.empty()) {
+        root = q.front();
+        q.pop();
+
+        // 如果当前节点是叶子节点，输出其编号
+        if (node[root].l == -1 && node[root].r == -1) {
+            if (!flag) cout << " ";
+            cout << root;
+            flag = false; // 使后续输出带空格
+        } else {
+            // 非叶子节点，将子节点加入队列
+            if (node[root].l != -1) q.push(node[root].l);
+            if (node[root].r != -1) q.push(node[root].r);
+        }
+    }
+
+    return 0;
+}
+7-8 完全二叉树的层序遍历
+#include<bits/stdc++.h>
+using namespace std;
+
+int N=1e8;
+
+vector<int>a,b;
+
+int top=1,n;
+
+
+void dfs(int i){
+
+    if(i<=n){
+        dfs(2*i);
+        dfs(2*i+1);
+        b[i]=a[top++];
+    }
+}
+
+
+
+int main(){
+
+
+    cin>>n;
+    a.resize(n+1);
+    b.resize(n+1);
+    for(int i=1;i<=n;i++){
+        cin>>a[i];
+    }
+    dfs(1);
+
+    bool flag=true;
+    for(int i=1;i<=n;i++){
+        if(!flag)cout<<" ";
+        cout<<b[i];
+        flag=false;
+    }
+
+    return 0;
+}
+
+7-9 交换二叉树中每个结点的左孩子和右孩子
+#include<bits/stdc++.h>
+using namespace std;
+
+struct Tree{
+
+    char data;
+    Tree*left;
+    Tree*right;
+
+    Tree(char val){
+    data=val;
+    left=nullptr;
+    right=nullptr;
+
+    }
+
+};
+
+
+Tree*buildTree(const string&text,int&index){
+    if(index>=text.size()||text[index]=='#'){
+        index++;
+        return nullptr;
+    }
+
+    Tree*node=new Tree(text[index++]);//先用index再++
+    node->left=buildTree(text,index);
+    node->right=buildTree(text,index);//pre中给的是根左右，符合逻辑
+    return node;
+
+}
+
+void inOrderTraversal(Tree*root,vector<char>&result){
+
+    if(!root)return ;
+
+    inOrderTraversal(root->left,result);
+    result.push_back(root->data);
+    inOrderTraversal(root->right,result);
+
+}
+
+
+int main(){
+
+    string text;
+    cin>>text;
+
+    int index=0;
+
+
+    Tree*root=buildTree(text,index);//创建了树 给了树的根
+
+
+    vector<char>result;
+
+    inOrderTraversal(root,result);
+
+
+    for(auto& c:result){
+
+        cout<<c;
+    }
+    cout<<endl;
+
+    reverse(result.begin(),result.end());
+     for(auto& c:result){
+
+        cout<<c;
+    }
+    cout<<endl;
+
+
+
+
+
+
+    return 0;
+}
+7-10 建立与遍历二叉树
+
+#include<bits/stdc++.h>
+using namespace std;
+
+struct Node{
+
+    char data;
+    Node*right;
+    Node*left;
+
+    Node(char val){
+        data=val;
+        right=nullptr;
+        left=nullptr;
+    }
+
+};
+
+
+Node*buildTree(const string&pre,int&index){
+    if(index>=pre.size()||pre[index]=='#'){
+
+        index++;
+        return nullptr;
+    }
+    Node*root=new Node(pre[index++]);
+
+    root->left=buildTree(pre,index);
+    root->right=buildTree(pre,index);
+    return root;
+
+}
+
+
+void Printin(Node*root){
+
+    if(!root)return;
+    Printin(root->left);
+    cout<<root->data;
+    Printin(root->right);
+
+}
+
+int main(){
+
+    string pre;
+    cin>>pre;
+    int index=0;
+
+    Node*root=buildTree(pre,index);
+    Printin(root);
+
+    return 0;
+}
+7-11 树的遍历
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<int>pre,in,post;
+
+struct Node{
+    int data;
+    Node*right;
+    Node*left;
+
+    Node(int val){
+        data=val;
+        right=nullptr;
+        left=nullptr;
+    }
+};
+
+Node*buildTree(int postl,int postR,int inL,int inR){
+    if(postl>postR||inL>inR)return nullptr;
+
+    Node*root=new Node(post[postR]);
+
+    int index;
+
+    for(index=inL;index<=inR;index++){
+
+        if(in[index]==root->data)break;
+
+    }
+
+    int leftsize=index-inL;
+
+    root->left=buildTree(postl,postl+leftsize-1,inL,index-1);
+    root->right=buildTree(postl+leftsize,postR-1,index+1,inR);
+    return root;
+}
+
+void printcen(Node*root){
+    if(!root)return;
+
+    queue<Node*>qu;
+
+    qu.push(root);
+    bool flag=true;
+
+    while(!qu.empty()){
+        Node*s=qu.front();
+        qu.pop();
+        if(!flag)cout<<" ";
+
+        cout<<s->data;
+        flag=false;
+
+        if(s->left)qu.push(s->left);
+        if(s->right)qu.push(s->right);
+
+    }
+
+}
+
+
+int main(){
+
+    int n;
+    cin>>n;
+    in.resize(n);
+    post.resize(n);
+
+    for(int i=0;i<n;i++){
+        cin>>post[i];
+    }
+    for(int i=0;i<n;i++){
+        cin>>in[i];
+    }
+
+    Node*root=buildTree(0,n-1,0,n-1);
+    printcen(root);
+
+    return 0;
+}
+7-12 哈夫曼树
+#include <bits/stdc++.h>
+using namespace std;
+
+int calculateWPL(vector<int>& weights) {
+    priority_queue<int, vector<int>, greater<int>> minHeap;  // 小顶堆
+    for (int weight : weights) {
+        minHeap.push(weight);  // 将所有叶结点权值放入堆
+    }
+
+    int wpl = 0;
+    while (minHeap.size() > 1) {
+        // 取出最小的两个权值
+        int first = minHeap.top();
+        minHeap.pop();
+        int second = minHeap.top();
+        minHeap.pop();
+
+        int combinedWeight = first + second;  // 合并
+        wpl += combinedWeight;  // 更新WPL
+        minHeap.push(combinedWeight);  // 合并后的权值重新插入堆
+    }
+
+    return wpl;
+}
+
+int main() {
+    int n;
+    cin >> n;  // 读取叶结点个数
+    vector<int> weights(n);
+
+    for (int i = 0; i < n; i++) {
+        cin >> weights[i];  // 读取每个叶结点的权值
+    }
+
+    int wpl = calculateWPL(weights);
+    cout << wpl << endl;  // 输出带权路径长度
+
+    return 0;
+}
+7-13 树层次遍历
+#include <iostream>
+#include <vector>
+#include <queue>
+using namespace std;
+
+struct Node {
+    int data;
+    Node* left;   // 左孩子
+    Node* right;  // 右兄弟
+    Node(int val) : data(val), left(nullptr), right(nullptr) {}
+};
+
+Node* buildTree(const vector<int>& pre) {
+    if (pre.empty()) return nullptr;
+    
+    Node* root = new Node(pre[0]);  // 根节点
+    vector<Node*> stack;
+    stack.push_back(root);
+    
+    for (size_t i = 1; i < pre.size(); ++i) {
+        if (pre[i] == 0) {
+            stack.pop_back();  // 遇到0，说明当前节点没有更多子节点，回溯到上一层
+        } else {
+            Node* newNode = new Node(pre[i]);
+            if (!stack.back()->left) {
+                stack.back()->left = newNode;  // 当前节点是栈顶节点的左孩子
+            } else {
+                Node* sibling = stack.back()->left;
+                while (sibling->right) {
+                    sibling = sibling->right;
+                }
+                sibling->right = newNode;  // 当前节点是左孩子的右兄弟
+            }
+            stack.push_back(newNode);  // 将当前节点加入栈
+        }
+    }
+    
+    return root;
+}
+
+void levelOrderTraversal(Node* root) {
+    if (!root) return;
+    queue<Node*> q;
+    q.push(root);
+    bool first = true;
+    
+    while (!q.empty()) {
+        Node* curr = q.front();
+        q.pop();
+        
+       
+        cout << curr->data<<" ";
+        first = false;
+        
+        if (curr->left) {
+            q.push(curr->left);  // 入队左孩子
+            Node* sibling = curr->left->right;
+            while (sibling) {
+                q.push(sibling);  // 入队右兄弟
+                sibling = sibling->right;
+            }
+        }
+    }
+    cout << endl;
+}
+
+int main() {
+    vector<int> pre;
+    int x;
+    while (cin >> x) {
+        pre.push_back(x);
+    }
+    
+    Node* root = buildTree(pre);
+    levelOrderTraversal(root);
+    
+    return 0;
+}
+7-14 浪漫侧影
+#include <iostream>
+#include <algorithm>
+#include <cmath>
+
+#define MAX 100000
+
+using namespace std;
+
+int n, midord[30], postord[30], tree[MAX], level = 0;
+
+void createTree (int *postord, int *midord, int n, int index) {
+    if (!n) return ;
+    int k = 0;
+    while (postord[n - 1] != midord[k]) k ++;
+    tree[index] = midord[k];
+    level = max(level, index);
+    
+    createTree(postord, midord, k, index * 2);
+    createTree(postord + k, midord + k + 1, n - k - 1, index * 2 + 1);
+}
+
+int main () {
+    cin >> n;
+    
+    for (int i = 0; i < n; i ++) cin >> midord[i];
+    for (int i = 0; i < n; i ++) cin >> postord[i];
+    
+    createTree(postord, midord, n, 1);
+    
+    for (int i = 1; i <= 22; i ++)
+        if (level < pow(2, i)) {
+            level = i;
+            break;
+        }
+    
+    cout << "R: ";
+    int cnt = 0, idx = 1;
+    while (cnt < level) {
+        if (tree[idx]) cout << tree[idx];
+        
+        if (tree[idx * 2 + 1]) idx = idx * 2 + 1;
+        else if (tree[idx * 2]) idx = idx * 2;
+        else {
+            idx = idx * 2;
+            while (!tree[idx]) idx --;
+        }
+        
+        cnt ++;
+        if (cnt != level) cout << ' ';
+        else cout << endl;
+    }
+    
+    cout << "L: ";
+    cnt = 0, idx = 1;
+    while (cnt < level) {
+        if (tree[idx]) cout << tree[idx];
+        
+        if (tree[idx * 2]) idx = idx * 2;
+        else if (tree[idx * 2 + 1]) idx = idx * 2 + 1;
+        else {
+            idx = idx * 2;
+            while (!tree[idx]) idx ++;
+        }
+        
+        cnt ++;
+        if (cnt != level) cout << ' ';
+        else cout << endl;
+    }
+    
+    return 0;
+}
+
+7-1 字符串模式匹配（KMP）
+#include<bits/stdc++.h>
+using namespace std;
+
+
+vector<int>get_Next(const string&pattern){
+    int n=pattern.size();
+    vector<int>lps(n);
+
+    int j=0;
+    for(int i=1;i<n;i++){
+
+        while(j>0&&pattern[i]!=pattern[j]){
+            j=lps[j-1];
+        }
+
+        if(pattern[i]==pattern[j]){
+
+            j++;
+        }
+
+        lps[i]=j;
+
+    }
+    return lps;
+
+
+}
+
+
+int KMP(const string&text,const string&pattern){
+
+    int n=text.size();
+    int m=pattern.size();
+
+    int count=0;
+
+    vector<int>lps(m);
+    lps=get_Next(pattern);
+
+    int j=0;
+
+    for(int i=0;i<n;i++){
+
+        while(j>0&&text[i]!=pattern[j]){
+            j=lps[j-1];
+        }
+
+        if(text[i]==pattern[j]){
+
+            j++;
+        }
+
+        if(j==m){
+            count++;
+            j=lps[j-1];
+        }
+    }
+    return count;
+
+
+
+
+
+
+}
+
+
+
+int main(){
+
+    string text,pattern;
+    cin>>text>>pattern;
+
+
+    cout<<KMP(text,pattern)<<endl;
+
+    return 0;
+}
+7-2 稀疏矩阵加法
+#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int n, m;
+    cin >> n >> m;  // 先输入 n 和 m
+    
+    vector<vector<int>> a(n, vector<int>(m, 0));  // 动态分配二维数组
+
+    int N1;
+    cin >> N1;
+
+    for (int i = 0; i < N1; i++) {
+        int p, b, c;
+        cin >> p >> b >> c;
+        a[p][b] = c;
+    }
+
+    int N2;
+    cin >> N2;
+
+    for (int i = 0; i < N2; i++) {
+        int p, b, c;
+        cin >> p >> b >> c;
+        a[p][b] += c;
+    }
+
+    int flag = 0;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {  // 修正循环条件
+            if (a[i][j] > 0) {
+                flag++;
+            }
+        }
+    }
+
+    cout << flag << endl;
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < m; j++) {  // 修正循环条件
+            if (a[i][j] > 0) {
+                cout << i << " " << j << " " << a[i][j] << endl;
+            }
+        }
+    }
+
+    return 0;
+}
+7-3 【模板】KMP字符串匹配
+#include<bits/stdc++.h>
+using namespace std;
+
+vector<int>getNext(const string&pattern){
+
+    int j=0;
+    int n=pattern.size();
+    vector<int>next(n);
+    for(int i=1;i<n;i++){
+
+        while(j>0&&pattern[i]!=pattern[j]){
+            j=next[j-1];
+        }
+
+        if(pattern[i]==pattern[j]){
+            j++;
+        }
+        next[i]=j;
+    }
+
+    return next;
+}
+
+
+void KMP(const string&text,const string&pattern){
+
+    int n=text.size();
+    int m=pattern.size();
+
+    vector<int>next=getNext(pattern);
+    int j=0;
+    for(int i=0;i<n;i++){
+
+        while(j>0&&text[i]!=pattern[j]){
+            j=next[j-1];
+        }
+
+        if(text[i]==pattern[j]){
+            j++;
+        }
+
+        if(j==m){
+             cout<<i-j+2<<endl;
+            j=next[j-1];
+        }
+    }
+
+
+}
+
+
+int main(){
+
+    string text,pattern;
+    cin>>text>>pattern;
+
+    KMP(text,pattern);
+
+    vector<int>Next=getNext(pattern);
+
+    bool flag=true;
+    for(auto&u:Next){
+
+        if(!flag)cout<<" ";
+        cout<<u;
+        flag=false;
+    }
+
+    return 0;
+}
+7-4 判断对称矩阵
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+
+int n;
+cin>>n;
+
+int A[n][n];
+
+for(int i=0;i<n;i++){
+
+    for(int j=0;j<n;j++){
+
+        cin>>A[i][j];
+    }
+}
+
+bool flag=true;
+
+for(int i=0;i<n;i++){
+
+    for(int j=0;j<n;j++){
+
+        if(A[i][j]!=A[j][i]){
+            flag=false;
+        }
+    }
+}
+
+if(flag)cout<<"Yes"<<endl;
+else cout<<"No"<<endl;
+
+
+
+
+
+
+return 0;
+}
+7-5 三元组顺序表表示的稀疏矩阵转置运算Ⅰ
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+
+    int n,m,t;
+    cin>>n>>m>>t;
+
+    vector<vector<int>>a(n,vector<int>(m,0));
+
+
+    for(int i=0;i<t;i++){
+
+        int p,b,c;
+        cin>>p>>b>>c;
+        a[p][b]=c;
+
+    }
+
+
+    for(int i=0;i<m;i++){
+
+        for(int j=0;j<n;j++){
+            if(a[j][i]!=0){
+                cout<<i<<" "<<j<<" "<<a[j][i]<<endl;
+
+            }
+
+        }
+
+    }
+
+
+
+    return 0;
+}
+7-6 三元组顺序表表示的稀疏矩阵转置Ⅱ
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+
+
+
+
+    int m,n,t;
+    cin>>m>>n>>t;
+    vector<vector<int>>s(m,vector<int>(n,0));
+    vector<vector<int>>e(m,vector<int>(n,0));
+
+
+
+    for(int i=0;i<t;i++){
+
+        int a,b,c;
+        cin>>a>>b>>c;
+        s[a][b]=c;
+        e[a][b]=i;
+
+    }
+
+    for(int i=0;i<n;i++){
+
+        for(int j=0;j<m;j++){
+
+            if(s[j][i]!=0){
+            cout<<e[j][i]<<" "<<j<<" "<<i<<" "<<s[i][j]<<endl;
+            }
+
+        }
+
+
+    }
+
+
+
+
+
+    return 0;
+}
+7-7 最大子矩阵和问题
+#include<bits/stdc++.h>
+using namespace std;
+
+int main() {
+    int m, n;
+    cin >> m >> n;
+
+    // 使用 vector 动态创建二维数组 dp 来存储前缀和
+    vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));
+
+    // 读取矩阵的输入并计算前缀和
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            int num;
+            cin >> num;
+            dp[i][j] = dp[i - 1][j] + num;
+        }
+    }
+
+    int ans = INT_MIN;
+    int x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+int temp = 0;
+    // 枚举所有子矩阵的上下边界
+    for (int i = 1; i <= m; i++) {           // 下边界
+        for (int j = 1; j <= i; j++) {       // 上边界
+            
+            int yy = 1;                      // 记录当前子矩阵的起始列
+
+            for (int k = 1; k <= n; k++) {   // 遍历右边界
+                temp += (dp[i][k] - dp[j - 1][k]);
+
+                // 如果找到更大的和，则更新最大和及子矩阵的边界
+                if (temp > ans) {
+                    ans = temp;
+                    x1 = j; x2 = i;
+                    y1 = yy; y2 = k;
+                }
+
+                // 如果 temp < 0，则从下一列重新开始累加
+                if (temp < 0) {
+                    temp = 0;
+                    yy = k + 1;
+                }
+            }
+        }
+    }
+
+    cout << ans << endl;
+    cout << x1 << " " << x2 << " " << y1 << " " << y2 << endl;
+
+    return 0;
+}
+7-8 好中缀
+#include<bits/stdc++.h>
+#define N 5000005
+#define ll long long
+#define inf 0x3f3f3f3f
+using namespace std;
+char s[N],s1[N];
+int nxt[N];
+int ans[N];
+
+void getnext(){
+    int t=0,k=-1;
+    int n=strlen(s);
+    nxt[t]=k;
+    while(t<n){
+        if(k==-1||s[t]==s[k]){
+            t++;
+            k++;
+            nxt[t]=k;
+        }
+        else k=nxt[k];
+    }
+}
+
+int main(){
+    cin>>s;
+    int n=strlen(s);
+    getnext();
+    int j=nxt[n];
+    int k=0;
+    while(j>0){
+        ans[k++]=j;
+        j=nxt[j];
+    }
+    sort(ans,ans+n,greater<int>());
+    n=n-ans[1]*2;
+    if(n<0)
+        n=0;
+    cout<<n<<endl;
+    return 0;
+}
+
+7-9 病毒变种
+#include<bits/stdc++.h>
+using namespace std;
+
+int main(){
+
+string str;
+
+int n;
+
+
+cin>>n;
+while(n--){
+
+    cin>>str;
+
+
+    for(int i=0;i<str.size();i++){
+
+        string mix=str.substr(i)+str.substr(0,i);
+
+        cout<<mix<<" ";
+    }
+    cout<<endl;
+
+}
+
+
+return 0;
+
+}
+7-10 统计子串
+
+#include<bits/stdc++.h>
+using namespace std;
+
+// 计算部分匹配表 (KMP 算法的 next 数组)
+vector<int> getNext(const string& pattern) {
+    int n = pattern.size();
+    vector<int> lps(n, 0); // 初始化 lps 数组
+    int j = 0;
+
+    for (int i = 1; i < n; i++) {
+        while (j > 0 && pattern[i] != pattern[j]) {
+            j = lps[j - 1]; // 回退到上一个匹配的位置
+        }
+        if (pattern[i] == pattern[j]) {
+            j++;
+        }
+        lps[i] = j; // 更新 lps 数组
+    }
+    return lps;
+}
+
+int main() {
+    int T;
+    cin >> T; // 输入测试数据组数
+
+    while (T--) {
+        string text, pattern;
+        cin >> text >> pattern;
+
+        int n = text.size();
+        int m = pattern.size();
+
+
+
+        vector<int> lps = getNext(pattern);
+        int j = 0; // 子串匹配位置
+        int count = 0; // 匹配次数
+        int first_pos = -1; // 记录第一个匹配位置
+
+        // KMP 匹配算法
+        for (int i = 0; i < n; i++) {
+            while (j > 0 && text[i] != pattern[j]) {
+                j = lps[j - 1];
+            }
+            if (text[i] == pattern[j]) {
+                j++;
+            }
+            if (j == m) {
+                if (first_pos == -1) {
+                    first_pos = i - m + 1 + 1; // 记录第一个匹配的起始位置 (1-based index)
+                }
+                count++; // 增加匹配次数
+                j = lps[j - 1]; // 继续寻找下一个匹配
+            }
+        }
+
+        if (count > 0) {
+            cout << first_pos << " " << count << endl; // 输出第一个匹配位置和匹配次数
+        } else {
+            cout << "0 0" << endl; // 没有匹配
+        }
+    }
+
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
